@@ -21,7 +21,7 @@ init -2 python:
         def __setitem__(self, item):
             pass
             
-    # Intent: TODO: Write Wardrobe intent
+    # Intent:
     #   Wardrobe contains 
     #       - all clothing pieces for an Actor
     #       - all pre-defined outfits for an Actor
@@ -132,7 +132,7 @@ init -2 python:
         ACTIONS (MAYBE: integrate action history w/ dialog history?)
             current,
     """
-    class Actor(renpy.store.ADVCharacter):                
+    class Actor(renpy.store.ADVCharacter):
         def __init__(self, name, **kwargs):
             """
             Actors are all non-player characters whom the player might interact with.
