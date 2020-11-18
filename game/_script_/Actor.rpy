@@ -11,14 +11,7 @@ init -2 python:
     # Occurrence: Inventory instanced for all Actor objects
     class Inventory(renpy.store.object):
         """ """
-        def __init__(self, inv, money):
-            self._inv = inv
-            self._money = money
-
-        def __getitem__(self, item):
-            return self._inv[item]
-
-        def __setitem__(self, item):
+        def __init__(self):
             pass
             
     # Intent:
@@ -28,16 +21,23 @@ init -2 python:
     #   Also contains 
     # Occurrence: Instanced for all Actor objects
     class Wardrobe(renpy.store.object):
-        def __init__(self, fallback, outfits):
+        def __init__(self, clothing, fallback, outfits):
             """
             Wardrobe contains the Outfits for a character 
             and handles changing the active outfit
 
-            :param fallback: fallback/default outfit for a character
-            :type fallback: Outfit(renpy.store.object)
-            :param outfits: Collection of possible outfits for Actor
-            :type outfits: Set (TODO: change data structure used?)
+                :param clothing: all possible clothing pieces for a character
+                :type clothing: Dictionary (string, Dictionary(string, value))
+                        ex  {'skirt': {'exposure':0}, 'bikini': {'exposure':9}}
+
+                :param fallback: fallback/default outfit for a character
+                :type fallback: Outfit(renpy.store.object)
+                
+                :param outfits: Collection of possible outfits for Actor
+                :type outfits: Set (TODO: change data structure used?)
             """
+            self.clothing = clothing
+
             self.active = fallback
             self.fallback = fallback
             self.outfits = outfits
@@ -130,19 +130,22 @@ init -2 python:
         LOCATION
             current, past, going, home
         ACTIONS (MAYBE: integrate action history w/ dialog history?)
-            current,
     """
     class Actor(renpy.store.ADVCharacter):
         def __init__(self, name, **kwargs):
             """
             Actors are all non-player characters whom the player might interact with.
-            TODO: Layout definition of Actor a little more precisely?
+                TODO: Layout definition of Actor a little more precisely?
 
-            :param name: [description]
-            :type name: string
+                :param name: character's "writer" name
+                :type name: string
             """                   
 
-            ### DEFAULT
+            ### DEFAULT (ADVCharacter related and misc)
+
+            # TODO: Add param(s) for character base image (ADVCharacter )
+            #       (This will be overlayed with the Outfit as a LayeredImage)
+            # TODO: Add params (etc) which determine prefixes and suffixes
 
             # Actor's Name
             # Seperate from actName so we can have thing's like "Player's Conscience",
@@ -153,33 +156,36 @@ init -2 python:
             # TODO: Get a better regex to replace the copied from location below
             self.actName = re.sub('[ ]','_',re.sub("[']",'',self.name)).lower()
 
-            # Constructs a ADVCharacter(object) or Adventure Character,
-            # to be used for dialog etc.
-            # TODO: Add param(s) for character base image
-            #       (This will be overlayed with the Outfit as a LayeredImage)
-            # TODO: Add params (etc) which determine prefixes and suffixes
-            self.ADVChar = ADVCharacter(actName)
-
             ### INVENTORY
 
-            # Construct Actor's Inventory(renpy.store.object)
+            # Construct Actor's Inventory
             # TODO: Scope out how inventory is used for NPCs (because atm,
             #       it seems like having a player-like inventory is pretty impractical)
             self.inventory = Inventory()
 
             ### CLOTHING AND WARDROBE
 
-            # Construct Actor's Wardrobe(renpy.store.object)
+            # Construct Actor's Wardrobe
             # Contains a default fallback outfit and a Set of possible outfits,
             # alongside all pieces of clothing an Actor can wear.
-            self.wardrobe = Wardrobe(kwargs.pop('fallback',"nude"),
-                                        kwargs.pop('outfits',{"nude","clothed"}))
-            # Set Actor's Active Outfit(renpy.store.object) (_script_/actor/Outfit.rpy)
-            self.outfit = wardrobe.active
+            self.wardrobe = Wardrobe(
+                kwargs.pop('clothing',{
+                    'defaultPanties':{'exposure':0},
+                    'defaultBra':{'exposure':0},
+                    'defaultLegs':{'exposure':0},
+                    'defaultInner':{'exposure':0},
+                    'defaultBottom':{'exposure':0},
+                    'defaultDress':{'exposure':0},
+                    'defaultTop':{'exposure':0},
+                    'defaultOuter':{'exposure':0}}),
+                kwargs.pop('fallback',"default"),
+                kwargs.pop('outfits',{'default','nude'}))
+            # Set Actor's Active Outfit
+            self.outfit = self.wardrobe.active
 
-            ### SCHEDULE AND BEHAVIOR
+            ### SCHEDULE
 
-            # Construct Actor's Schedule(renpy.store.object)
+            # Construct Actor's Schedule
             # TODO: Schedule description here
             self.schedule = Schedule()
 

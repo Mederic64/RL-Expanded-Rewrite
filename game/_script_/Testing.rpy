@@ -6,7 +6,11 @@
 define testenv = Location("University Square", adjacent=
                             ["Classroom","Danger Room", "Image Test"], dayCycle=True)
 
+define exampleClothes = {}
+
 define exampleOutfit = Outfit(top="Nothing")
+
+define exampleActor = Actor("Buster", fallback="busted",outfits={'busted','busting'})
 
 # Test label for layeredimage
 # TODO: Make a proper sprite test environment
@@ -30,20 +34,19 @@ label imageTest:
     jump testenv
 
 
-# Testing label for Wardrobe System
-label wardTest:
+# Testing label for Actors
+label actorTest:
     show danger_room
     # call wardrobe # this is where I would summon a wardrobe system
     ## IF I HAD ONE
-    # "Outfit Piece Logged"
     menu:
-        "Get Piece Names":
-            $ print(exampleOutfit.getLayers())
+        "Analyze Buster":
+            exampleActor "I am Buster!"
         "Back":
             jump testenv
         # "Main Menu":
         #     $ MainMenu(confirm=False)()
-    jump wardTest
+    jump actorTest
 
 # Test label using Location.
 label testenv:
@@ -65,8 +68,8 @@ label testenv:
             menu:
                 "Image System Test":
                     jump imageTest
-                "Wardrobe System Test":
-                    jump wardTest
+                "Actor Testing":
+                    jump actorTest
                 "Back":
                     jump testenv
         "Go somewhere else":
