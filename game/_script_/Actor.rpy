@@ -77,7 +77,7 @@ init -2 python:
                 0 panties
                 1 bra
                 2 legs (hose)
-                3 inner
+                3 inner (inner shirt/top layer)
                 4 bottom
                 5 dress
                 6 top
@@ -131,30 +131,27 @@ init -2 python:
             current, past, going, home
         ACTIONS (MAYBE: integrate action history w/ dialog history?)
     """
-    class Actor(renpy.store.ADVCharacter):
-        def __init__(self, name, **kwargs):
+    class Actor(ADVCharacter):
+        def __init__(self, name, kind=None, **kwargs):
             """
             Actors are all non-player characters whom the player might interact with.
                 TODO: Layout definition of Actor a little more precisely?
 
-                :param name: character's "writer" name
+                :param name: character's "writer" name, 
+                :            also corresponds to ADVCharacter self.name
                 :type name: string
+                :param kind: is this character based off of another Character, 
+                :            also corresponds to ADVCharacter self.name
+                :type kind : renpy.store.ADVCharacter
             """                   
 
-            ### DEFAULT (ADVCharacter related and misc)
-
-            # TODO: Add param(s) for character base image (ADVCharacter )
-            #       (This will be overlayed with the Outfit as a LayeredImage)
-            # TODO: Add params (etc) which determine prefixes and suffixes
-
+            ### MISC
+            
             # Actor's Name
-            # Seperate from actName so we can have thing's like "Player's Conscience",
+            # Seperate from self.name so we can have thing's like "Player's Conscience",
             # thus keeping problems related to our Actor's name have special characters-
             # minimized if not outright prevented.
-            self.name = name
-            # Actor's Name for progammatic purposes
-            # TODO: Get a better regex to replace the copied from location below
-            self.actName = re.sub('[ ]','_',re.sub("[']",'',self.name)).lower()
+            self.actName = name
 
             ### INVENTORY
 
@@ -168,6 +165,7 @@ init -2 python:
             # Construct Actor's Wardrobe
             # Contains a default fallback outfit and a Set of possible outfits,
             # alongside all pieces of clothing an Actor can wear.
+            # TODO: PASS NOT STRING BUT ACTUAL OUTFIT OBJECT OR SOMETHING
             self.wardrobe = Wardrobe(
                 kwargs.pop('clothing',{
                     'defaultPanties':{'exposure':0},
@@ -189,3 +187,17 @@ init -2 python:
             # TODO: Schedule description here
             self.schedule = Schedule()
 
+            ### ADVCharacter(object)
+
+            # TODO: Add param(s) for character base image (ADVCharacter )
+            #       (This will be overlayed with the Outfit as a LayeredImage)
+            # TODO: Add params (etc) which determine prefixes and suffixes
+
+            super(Actor, self).__init__(name, kind, **kwargs)
+
+            if 'color' not in kwargs:
+                self.color = '#000000'
+
+            # Actor's Name
+            # TODO: Get a better regex to replace the copied from location below
+            # self.name = re.sub('[ ]','_',re.sub("[']",'',name)).lower()

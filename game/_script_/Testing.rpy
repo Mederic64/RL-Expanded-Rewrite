@@ -10,7 +10,8 @@ define exampleClothes = {}
 
 define exampleOutfit = Outfit(top="Nothing")
 
-define exampleActor = Actor("Buster", fallback="busted",outfits={'busted','busting'})
+# Actor(name, kind=None, color="#000000", **kwargs)
+define exampleActor = Actor("Busty",fallback="busted",outfits={'busted','busting'})
 
 # Test label for layeredimage
 # TODO: Make a proper sprite test environment
@@ -41,7 +42,7 @@ label actorTest:
     ## IF I HAD ONE
     menu:
         "Analyze Buster":
-            exampleActor "I am Buster!"
+            exampleActor "I am Busty!"
         "Back":
             jump testenv
         # "Main Menu":
