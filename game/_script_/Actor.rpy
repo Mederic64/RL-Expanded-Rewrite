@@ -196,7 +196,7 @@ init -2 python:
                     kwargs.pop('outfits',{'default','nude'}))
                 # Set Actor's Active Outfit
                 self.outfit = self.wardrobe.active
-            ###
+            
             '''
             SCHEDULE
                 Construct Actor's Schedule
@@ -206,7 +206,6 @@ init -2 python:
             TODO: Write a definition for what the schedule contains above !
             '''
             self.schedule = Schedule()
-            ###
 
             '''
             ADVCharacter

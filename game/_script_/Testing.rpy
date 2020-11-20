@@ -13,8 +13,10 @@ define exampleOutfit = Outfit(top="Nothing")
 # ActorPlayer(name, kind=None, **kwargs)
 # define examplePlayer = ActorPlayer("Player")
 
+image busty = "busty.png"
+
 # Actor(name, kind=None, **kwargs)
-define exampleActor = Actor("Busty",image="busty",color="#fbb03b",fallback="busted",outfits={'busted','busting'})
+define busty = Actor("Busty",image="busty",color="#fbb03b",fallback="busted",outfits={'busted','busting'})
 
 # Test label for layeredimage
 # TODO: Make a proper sprite test environment
@@ -45,13 +47,27 @@ label actorTest:
     ## IF I HAD ONE
     menu:
         "Analyze Busty":
-            show exampleActor
-            exampleActor "I am Busty!"
+            show busty
+            busty "I am Busty!"
         "Back":
-            jump testenv
+            jump systemsMenu
         # "Main Menu":
         #     $ MainMenu(confirm=False)()
     jump actorTest
+
+label systemsMenu:
+    $ renpy.scene()
+    $ renpy.show(testenv.getBackground())
+    menu:
+        "Image System Test":
+            jump imageTest
+        "Actor Testing":
+            jump actorTest
+        # "Wardrobe System":
+        #     jump wardTest
+        "Back":
+            jump testenv
+    jump systemsMenu
 
 # Test label using Location.
 label testenv:
@@ -70,13 +86,7 @@ label testenv:
             # call Girls_Location
             pass
         "Systems Testing":
-            menu:
-                "Image System Test":
-                    jump imageTest
-                "Actor Testing":
-                    jump actorTest
-                "Back":
-                    jump testenv
+            call systemsMenu
         "Go somewhere else":
             $ locationMenu(testenv)
         "Main Menu":
