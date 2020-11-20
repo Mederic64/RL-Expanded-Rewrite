@@ -115,6 +115,11 @@ init -2 python:
             def __init__(self):
                 pass
     
+    ##
+    ###
+    ####
+    ###
+    ##
     """
     Actor INTENT:
         (data storage) RELATIONSHIPS (helper functions)
@@ -135,69 +140,85 @@ init -2 python:
         def __init__(self, name, kind=None, **kwargs):
             """
             Actors are all non-player characters whom the player might interact with.
-                TODO: Layout definition of Actor a little more precisely?
-
                 :param name: character's "writer" name, 
                 :            also corresponds to ADVCharacter self.name
                 :type name: string
                 :param kind: is this character based off of another Character, 
                 :            also corresponds to ADVCharacter self.name
                 :type kind : renpy.store.ADVCharacter
-            """                   
+            TODO: Layout definition of Actor a little more precisely?
+            """
 
-            ### MISC
-            
-            # Actor's Name
-            # Seperate from self.name so we can have thing's like "Player's Conscience",
-            # thus keeping problems related to our Actor's name have special characters-
-            # minimized if not outright prevented.
+            '''   
+            NAME
+                Seperate var from self.name, allows names like: "Player's Conscience".
+                Keeps problems related to our Actor's name have special characters
+                minimized if not outright prevented.
+            '''   
             self.actName = name
+            self.trimmed = re.sub('[ ]','_',re.sub("[']",'',self.actName)).lower()
+        
+            '''
+            INVENTORY
+                * Intent for an Inventory here.
+                By default all Actor objects have an inventory.
+                But, by specifying "hasInventory=False" in kwargs,
+                an Actor object will not have an inventory object.
+            TODO: Write a intent for what the inventory does above *
+            '''
+            self.hasInventory = kwargs.pop("hasInventory",True)
+            if self.hasInventory:
+                self.inventory = Inventory()
 
-            ### INVENTORY
-
-            # Construct Actor's Inventory
-            # TODO: Scope out how inventory is used for NPCs (because atm,
-            #       it seems like having a player-like inventory is pretty impractical)
-            self.inventory = Inventory()
-
-            ### CLOTHING AND WARDROBE
-
-            # Construct Actor's Wardrobe
-            # Contains a default fallback outfit and a Set of possible outfits,
-            # alongside all pieces of clothing an Actor can wear.
-            # TODO: PASS NOT STRING BUT ACTUAL OUTFIT OBJECT OR SOMETHING
-            self.wardrobe = Wardrobe(
-                kwargs.pop('clothing',{
-                    'defaultPanties':{'exposure':0},
-                    'defaultBra':{'exposure':0},
-                    'defaultLegs':{'exposure':0},
-                    'defaultInner':{'exposure':0},
-                    'defaultBottom':{'exposure':0},
-                    'defaultDress':{'exposure':0},
-                    'defaultTop':{'exposure':0},
-                    'defaultOuter':{'exposure':0}}),
-                kwargs.pop('fallback',"default"),
-                kwargs.pop('outfits',{'default','nude'}))
-            # Set Actor's Active Outfit
-            self.outfit = self.wardrobe.active
-
-            ### SCHEDULE
-
-            # Construct Actor's Schedule
-            # TODO: Schedule description here
+            '''
+            WARDROBE AND OUTFITS
+                Construct Actor's Wardrobe
+                Contains a default fallback outfit and a collection of possible outfits,
+                alongside all pieces of clothing an Actor can wear.
+                By default all Actor objects have an Wardrobe.
+                But, by specifying "hasWardrobe=False" in kwargs,
+                an Actor object will not have an Wardrobe object.
+            TODO: PASS NOT STRING BUT ACTUAL OUTFIT OBJECT OR SOMETHING
+            '''
+            self.hasWardrobe = kwargs.pop("hasWardrobe",True)
+            if self.hasWardrobe:
+                self.wardrobe = Wardrobe(
+                    kwargs.pop('clothing',{
+                        'defaultPanties':{'exposure':0},
+                        'defaultBra':{'exposure':0},
+                        'defaultLegs':{'exposure':0},
+                        'defaultInner':{'exposure':0},
+                        'defaultBottom':{'exposure':0},
+                        'defaultDress':{'exposure':0},
+                        'defaultTop':{'exposure':0},
+                        'defaultOuter':{'exposure':0}}),
+                    kwargs.pop('fallback',"default"),
+                    kwargs.pop('outfits',{'default','nude'}))
+                # Set Actor's Active Outfit
+                self.outfit = self.wardrobe.active
+            ###
+            '''
+            SCHEDULE
+                Construct Actor's Schedule
+                * Intent for a Schedule here.
+                ! Definition of Schedule by it's contents. 
+            TODO: Write a intent for what the inventory does above *
+            TODO: Write a definition for what the schedule contains above !
+            '''
             self.schedule = Schedule()
+            ###
 
-            ### ADVCharacter(object)
-
-            # TODO: Add param(s) for character base image (ADVCharacter )
+            '''
+            ADVCharacter
+                Actor has a class is intended to be a writer friendly expansion upon
+                the actor object when using the "Character()" function.
+                See renpy/renpy/character.py:662 to see what ADVCharacter contains.
+            # TODO: Add param(s) for character base image (ADVCharacter ) Done?
             #       (This will be overlayed with the Outfit as a LayeredImage)
             # TODO: Add params (etc) which determine prefixes and suffixes
+            '''
 
-            super(Actor, self).__init__(name, kind, **kwargs)
+            super(Actor, self).__init__(self.actName, kind, **kwargs)
 
-            if 'color' not in kwargs:
-                self.color = '#000000'
-
-            # Actor's Name
-            # TODO: Get a better regex to replace the copied from location below
-            # self.name = re.sub('[ ]','_',re.sub("[']",'',name)).lower()
+            # self.color = '#000000' if 'color' not in kwargs
+            # self.color = '#000000' if 'color' not in kwargs

@@ -10,8 +10,11 @@ define exampleClothes = {}
 
 define exampleOutfit = Outfit(top="Nothing")
 
-# Actor(name, kind=None, color="#000000", **kwargs)
-define exampleActor = Actor("Busty",fallback="busted",outfits={'busted','busting'})
+# ActorPlayer(name, kind=None, **kwargs)
+# define examplePlayer = ActorPlayer("Player")
+
+# Actor(name, kind=None, **kwargs)
+define exampleActor = Actor("Busty",image="busty",color="#fbb03b",fallback="busted",outfits={'busted','busting'})
 
 # Test label for layeredimage
 # TODO: Make a proper sprite test environment
@@ -41,7 +44,8 @@ label actorTest:
     # call wardrobe # this is where I would summon a wardrobe system
     ## IF I HAD ONE
     menu:
-        "Analyze Buster":
+        "Analyze Busty":
+            show exampleActor
             exampleActor "I am Busty!"
         "Back":
             jump testenv
