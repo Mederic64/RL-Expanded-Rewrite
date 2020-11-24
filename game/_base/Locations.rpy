@@ -74,6 +74,9 @@ init -2 python:
         # Jumps to chosen location label
         renpy.jump(nextLoc)
 
+define unassigned = Location("Unassigned Land", adjacent=
+                                ["Classroom","Danger Room","Pool"])
+
 define my_room = Location("My Room", adjacent=[], dayCycle=True)
 define university_square = Location("University Square", adjacent=
                             ["My Room", "Classroom","Danger Room"], dayCycle=True)

@@ -8,7 +8,7 @@ init -2 python:
     # Intent: TODO: Write Inventory intent
     #   Intent
     #   Here
-    # Occurrence: Inventory instanced for all Actor objects
+    # Occurrence: Instanced by default for all Actor objects
     class Inventory(renpy.store.object):
         """ """
         def __init__(self):
@@ -19,33 +19,32 @@ init -2 python:
     #       - all clothing pieces for an Actor
     #       - all pre-defined outfits for an Actor
     #   Also contains 
-    # Occurrence: Instanced for all Actor objects
+    # Occurrence: Instanced by default for all Actor objects
     class Wardrobe(renpy.store.object):
-        def __init__(self, clothing, fallback, outfits):
+        def __init__(self, clothing, outfits, **kwargs):
             """
             Wardrobe contains the Outfits for a character 
             and handles changing the active outfit
 
                 :param clothing: all possible clothing pieces for a character
                 :type clothing: Dictionary (string, Dictionary(string, value))
-                        ex  {'skirt': {'exposure':0}, 'bikini': {'exposure':9}}
-
-                :param fallback: fallback/default outfit for a character
-                :type fallback: Outfit(renpy.store.object)
+                    ex  {'skirt': {'exposure':0}, 'bikini': {'exposure':9}}
                 
                 :param outfits: Collection of possible outfits for Actor
                 :type outfits: Set (TODO: change data structure used?)
             """
             self.clothing = clothing
-
-            self.active = fallback
-            self.fallback = fallback
             self.outfits = outfits
+
+            self.fallback = outfits[0] #fallback/default outfit
+            self.active = kwargs.pop('active',self.fallback) 
+            #default to using fallback outfit via a string
+            #TODO: grab an Outfit object from Outfits based on a string passed to 'active', not a string
 
     # Intent:
     #   Single state of a characters current clothing, data store
     #   Collection of clothing pieces
-    # Occurrence: Instanced for all Actor objects
+    # Occurrence: Instanced by default for all Actor objects
     class Outfit(renpy.store.object):
         def __init__(self, **kwargs):
             # outfit statistics
@@ -68,21 +67,11 @@ init -2 python:
             self.dress = kwargs.pop('dress',"N/A") # "full-body" clothing
             self.top = kwargs.pop('top',"N/A") # upper body
             self.outer = kwargs.pop('outer',"N/A") # upper body (ex: jackets, coats)
+            # self.acc = ["","",""] # top accessories
 
             self.layers = [self.panties, self.bra, self.legs, 
                             self.inner, self.bottom, self.dress, self.top, self.outer]
 
-        """
-            layers by priority:
-                0 panties
-                1 bra
-                2 legs (hose)
-                3 inner (inner shirt/top layer)
-                4 bottom
-                5 dress
-                6 top
-                7 outer
-        """
         def getLayers(self):
             strOut = ""
             for i, v in enumerate(self.layers):
@@ -96,46 +85,31 @@ init -2 python:
             except AttributeError:
                 renpy.log("ERROR, ATTRIBUTE %s DOES NOT EXIST" % _exposure)
 
-            # functions
-            #   check taboo (ex: response from actor)
-            #   check exposure
-            #   check traits
-            #   checks but not the fun/money kind
-            # come up with more checks if needed
-            
+        # functions
+        #   check taboo (ex: response from actor)
+        #   check exposure
+        #   check traits
+        #   checks but not the fun/money kind
+        # come up with more checks if needed
 
-            # self.acc = ["","",""] # top accessories
-    
     # Intent: TODO: Write Schedule intent
     #   Intent
     #   Here
-    # Occurrence: Instanced for all Actor objects
+    # Occurrence: Instanced by default for all Actor objects
     class Schedule(renpy.store.object):
             """ """
             def __init__(self):
                 pass
+
+    # Intent: TODO: Write Statistics intent
+    #   Intent
+    #   Here
+    # Occurrence: Instanced by default for all Actor objects
+    class Statistics(renpy.store.object):
+            """ """
+            def __init__(self):
+                pass
     
-    ##
-    ###
-    ####
-    ###
-    ##
-    """
-    Actor INTENT:
-        (data storage) RELATIONSHIPS (helper functions)
-        ADVCharacter extended functionality
-        INVENTORY (object)
-        WARDROBE (object)
-        SCHEDULE (object)
-        SEX
-        STATS (dynamic)
-            parsed variables
-            relationships
-            ex: Actor.statA (after creation)
-        LOCATION
-            current, past, going, home
-        ACTIONS (MAYBE: integrate action history w/ dialog history?)
-    """
     class Actor(ADVCharacter):
         def __init__(self, name, kind=None, **kwargs):
             """
@@ -159,16 +133,28 @@ init -2 python:
             self.trimmed = re.sub('[ ]','_',re.sub("[']",'',self.actName)).lower()
         
             '''
+            BASIC-ACTOR
+            '''
+            self.isBasic = kwargs.pop('isBasic',false)
+            if self.isBasic:
+                self.hasInventory = True
+                self.hasWardrobe = True
+                self.hasSchedule = True
+                self.hasLocation = True
+                self.hasStats = True
+
+            '''
             INVENTORY
                 * Intent for an Inventory here.
                 By default all Actor objects have an inventory.
                 But, by specifying "hasInventory=False" in kwargs,
                 an Actor object will not have an inventory object.
-            TODO: Write a intent for what the inventory does above *
+            TODO: Write an intent for what the inventory does above *
             '''
-            self.hasInventory = kwargs.pop("hasInventory",True)
-            if self.hasInventory:
-                self.inventory = Inventory()
+            if not self.isBasic:
+                self.hasInventory = kwargs.pop("hasInventory",True)
+                if self.hasInventory:
+                    self.inventory = Inventory()
 
             '''
             WARDROBE AND OUTFITS
@@ -180,32 +166,62 @@ init -2 python:
                 an Actor object will not have an Wardrobe object.
             TODO: PASS NOT STRING BUT ACTUAL OUTFIT OBJECT OR SOMETHING
             '''
-            self.hasWardrobe = kwargs.pop("hasWardrobe",True)
-            if self.hasWardrobe:
-                self.wardrobe = Wardrobe(
-                    kwargs.pop('clothing',{
-                        'defaultPanties':{'exposure':0},
-                        'defaultBra':{'exposure':0},
-                        'defaultLegs':{'exposure':0},
-                        'defaultInner':{'exposure':0},
-                        'defaultBottom':{'exposure':0},
-                        'defaultDress':{'exposure':0},
-                        'defaultTop':{'exposure':0},
-                        'defaultOuter':{'exposure':0}}),
-                    kwargs.pop('fallback',"default"),
-                    kwargs.pop('outfits',{'default','nude'}))
-                # Set Actor's Active Outfit
-                self.outfit = self.wardrobe.active
+            if not self.isBasic:
+                self.hasWardrobe = kwargs.pop("hasWardrobe",True)
+                if self.hasWardrobe:
+                    self.wardrobe = Wardrobe(
+                        kwargs.pop('clothing',{
+                            'defaultPanties':{'exposure':0},
+                            'defaultBra':{'exposure':0},
+                            'defaultLegs':{'exposure':0},
+                            'defaultInner':{'exposure':0},
+                            'defaultBottom':{'exposure':0},
+                            'defaultDress':{'exposure':0},
+                            'defaultTop':{'exposure':0},
+                            'defaultOuter':{'exposure':0}}),
+                        kwargs.pop('outfits',{'default','nude'}))
+                        
+                    # Set Actor's Active Outfit, if the actor has a Wardrobe
+                    self.outfit = self.wardrobe.active
             
             '''
             SCHEDULE
                 Construct Actor's Schedule
                 * Intent for a Schedule here.
                 ! Definition of Schedule by it's contents. 
-            TODO: Write a intent for what the inventory does above *
+            TODO: Write an intent for what the schedule does above *
             TODO: Write a definition for what the schedule contains above !
             '''
-            self.schedule = Schedule()
+            if not self.isBasic:
+                self.hasSchedule = kwargs.pop("hasSchedule",True)
+                if self.hasSchedule:
+                    self.schedule = Schedule()
+
+            '''
+            LOCATION
+                *
+                !
+            TODO: Write an intent for what the location does above *
+            TODO: Write a definition for what the location contains above !
+            '''
+            if not self.isBasic:
+                self.hasLocation = kwargs.pop("hasLocation",True)
+                if self.hasLocation:
+                    self.location = kwargs.pop('location',unsassigned)
+                #TODO: Location history functionality?
+            
+
+            '''
+            STATS
+                *
+                !
+            TODO: Write an intent for what the Stats object does above *
+            TODO: Write a definition for what the Stats object contains above !
+            '''
+            if not self.isBasic:
+                self.hasStats = kwargs.pop("hasStats",True)
+                if self.hasStats:
+                    self.statistics = Statistics() 
 
             '''
             ADVCharacter
@@ -219,5 +235,4 @@ init -2 python:
 
             super(Actor, self).__init__(self.actName, kind, **kwargs)
 
-            # self.color = '#000000' if 'color' not in kwargs
             # self.color = '#000000' if 'color' not in kwargs
