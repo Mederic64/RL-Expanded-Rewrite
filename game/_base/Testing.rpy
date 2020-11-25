@@ -6,17 +6,18 @@
 define testenv = Location("University Square", adjacent=
                             ["Classroom","Danger Room", "Image Test"], dayCycle=True)
 
-define exampleClothes = {}
-
-define exampleOutfit = Outfit(top="Nothing")
-
 # ActorPlayer(name, kind=None, **kwargs)
 # define examplePlayer = ActorPlayer("Player")
 
 image busty = "busty.png"
 
+define busted = Outfit("busted")
+define busting = Outfit("busting")
+
 # Actor(name, kind=None, **kwargs)
-define busty = Actor("Busty",image="busty",color="#fbb03b",outfits=['busted','busting'])
+define busty = Actor("Busty",image="busty",color="#fbb03b",outfits=[busted,busting])
+
+define oneOff = Actor("OneOff",color="#000000",isBasic=True)
 
 label systemsMenu:
     $ renpy.scene()

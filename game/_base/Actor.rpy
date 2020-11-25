@@ -46,7 +46,19 @@ init -2 python:
     #   Collection of clothing pieces
     # Occurrence: Instanced by default for all Actor objects
     class Outfit(renpy.store.object):
-        def __init__(self, **kwargs):
+        def __init__(self, name, **kwargs):
+            '''
+            Wardrobe contains a possible state of clothing worn by an Actor
+                This is used in two ways:
+                    a) immutable object to read data from
+                    b) mutable object to change (custom outfits)
+                    c) actively used Outfit object (currently equipped)
+                        This can be immutable if a preset outift,
+                        or mutable in the case of a custom outfit. 
+                :param name: name of outfit
+                :type name: string
+            '''
+            self.name = name
             # outfit statistics
             self._nude = 0  # no clothes at all (does not include acces.)
             self._undressed = 0 # aka functionally nude (includes acces.)
@@ -123,6 +135,10 @@ init -2 python:
             TODO: Layout definition of Actor a little more precisely?
             """
 
+            if config.developer: 
+                print("Before construction - Current kwargs: ")
+                print(','.join('{0}={1!r}'.format(k,v) for k,v in kwargs.items()))
+
             '''   
             NAME
                 Seperate var from self.name, allows names like: "Player's Conscience".
@@ -135,13 +151,13 @@ init -2 python:
             '''
             BASIC-ACTOR
             '''
-            self.isBasic = kwargs.pop('isBasic',false)
+            self.isBasic = kwargs.pop('isBasic',False)
             if self.isBasic:
-                self.hasInventory = True
-                self.hasWardrobe = True
-                self.hasSchedule = True
-                self.hasLocation = True
-                self.hasStats = True
+                self.hasInventory = False
+                self.hasWardrobe = False
+                self.hasSchedule = False
+                self.hasLocation = False
+                self.hasStats = False
 
             '''
             INVENTORY
@@ -151,9 +167,8 @@ init -2 python:
                 an Actor object will not have an inventory object.
             TODO: Write an intent for what the inventory does above *
             '''
-            if not self.isBasic:
-                self.hasInventory = kwargs.pop("hasInventory",True)
-                if self.hasInventory:
+            if not self.isBasic: self.hasInventory = kwargs.pop("hasInventory",True)
+            if self.hasInventory:
                     self.inventory = Inventory()
 
             '''
@@ -166,23 +181,22 @@ init -2 python:
                 an Actor object will not have an Wardrobe object.
             TODO: PASS NOT STRING BUT ACTUAL OUTFIT OBJECT OR SOMETHING
             '''
-            if not self.isBasic:
-                self.hasWardrobe = kwargs.pop("hasWardrobe",True)
-                if self.hasWardrobe:
-                    self.wardrobe = Wardrobe(
-                        kwargs.pop('clothing',{
-                            'defaultPanties':{'exposure':0},
-                            'defaultBra':{'exposure':0},
-                            'defaultLegs':{'exposure':0},
-                            'defaultInner':{'exposure':0},
-                            'defaultBottom':{'exposure':0},
-                            'defaultDress':{'exposure':0},
-                            'defaultTop':{'exposure':0},
-                            'defaultOuter':{'exposure':0}}),
-                        kwargs.pop('outfits',{'default','nude'}))
-                        
-                    # Set Actor's Active Outfit, if the actor has a Wardrobe
-                    self.outfit = self.wardrobe.active
+            if not self.isBasic: self.hasWardrobe = kwargs.pop("hasWardrobe",True)
+            if self.hasWardrobe:
+                self.wardrobe = Wardrobe(
+                    kwargs.pop('clothing',{
+                        'defaultPanties':{'exposure':0},
+                        'defaultBra':{'exposure':0},
+                        'defaultLegs':{'exposure':0},
+                        'defaultInner':{'exposure':0},
+                        'defaultBottom':{'exposure':0},
+                        'defaultDress':{'exposure':0},
+                        'defaultTop':{'exposure':0},
+                        'defaultOuter':{'exposure':0}}),
+                    kwargs.pop('outfits',{'default','nude'}))
+                    
+                # Set Actor's Active Outfit, if the actor has a Wardrobe
+                self.outfit = self.wardrobe.active
             
             '''
             SCHEDULE
@@ -192,10 +206,9 @@ init -2 python:
             TODO: Write an intent for what the schedule does above *
             TODO: Write a definition for what the schedule contains above !
             '''
-            if not self.isBasic:
-                self.hasSchedule = kwargs.pop("hasSchedule",True)
-                if self.hasSchedule:
-                    self.schedule = Schedule()
+            if not self.isBasic: self.hasSchedule = kwargs.pop("hasSchedule",True)
+            if self.hasSchedule:
+                self.schedule = Schedule()
 
             '''
             LOCATION
@@ -203,14 +216,12 @@ init -2 python:
                 !
             TODO: Write an intent for what the location does above *
             TODO: Write a definition for what the location contains above !
+            TODO: Location history functionality?
             '''
-            if not self.isBasic:
-                self.hasLocation = kwargs.pop("hasLocation",True)
-                if self.hasLocation:
-                    self.location = kwargs.pop('location',unsassigned)
-                #TODO: Location history functionality?
-            
-
+            if not self.isBasic: self.hasLocation = kwargs.pop("hasLocation",True)
+            if self.hasLocation:
+                self.location = kwargs.pop('location',None)
+                
             '''
             STATS
                 *
@@ -218,10 +229,9 @@ init -2 python:
             TODO: Write an intent for what the Stats object does above *
             TODO: Write a definition for what the Stats object contains above !
             '''
-            if not self.isBasic:
-                self.hasStats = kwargs.pop("hasStats",True)
-                if self.hasStats:
-                    self.statistics = Statistics() 
+            if not self.isBasic: self.hasStats = kwargs.pop("hasStats",True)
+            if self.hasStats:
+                self.statistics = Statistics()
 
             '''
             ADVCharacter
@@ -233,6 +243,12 @@ init -2 python:
             # TODO: Add params (etc) which determine prefixes and suffixes
             '''
 
-            super(Actor, self).__init__(self.actName, kind, **kwargs)
+            if config.developer:
+                print("After custom construction - Current kwargs: ")
+                print(','.join('{0}={1!r}'.format(k,v) for k,v in kwargs.items()))
 
-            # self.color = '#000000' if 'color' not in kwargs
+            if 'color' not in kwargs:
+                kwargs.update({'color':"#000000"})
+                if config.developer print("color was not found")
+
+            super(Actor, self).__init__(self.actName, kind, **kwargs)
