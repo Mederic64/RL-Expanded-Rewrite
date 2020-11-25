@@ -132,22 +132,21 @@ init -2 python:
                 :param kind: is this character based off of another Character, 
                 :            also corresponds to ADVCharacter self.name
                 :type kind : renpy.store.ADVCharacter
-            TODO: Layout definition of Actor a little more precisely?
             """
 
             if config.developer: 
                 print("Before construction - Current kwargs: ")
                 print(','.join('{0}={1!r}'.format(k,v) for k,v in kwargs.items()))
 
-            '''   
+            '''
             NAME
                 Seperate var from self.name, allows names like: "Player's Conscience".
                 Keeps problems related to our Actor's name have special characters
                 minimized if not outright prevented.
-            '''   
+            '''
             self.actName = name
             self.trimmed = re.sub('[ ]','_',re.sub("[']",'',self.actName)).lower()
-        
+
             '''
             BASIC-ACTOR
             '''
@@ -161,7 +160,7 @@ init -2 python:
 
             '''
             INVENTORY
-                * Intent for an Inventory here.
+                Used for seeing if an actor has an item for conditionals.
                 By default all Actor objects have an inventory.
                 But, by specifying "hasInventory=False" in kwargs,
                 an Actor object will not have an inventory object.
@@ -238,9 +237,6 @@ init -2 python:
                 Actor has a class is intended to be a writer friendly expansion upon
                 the actor object when using the "Character()" function.
                 See renpy/renpy/character.py:662 to see what ADVCharacter contains.
-            # TODO: Add param(s) for character base image (ADVCharacter ) Done?
-            #       (This will be overlayed with the Outfit as a LayeredImage)
-            # TODO: Add params (etc) which determine prefixes and suffixes
             '''
 
             if config.developer:

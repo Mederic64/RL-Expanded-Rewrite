@@ -98,11 +98,11 @@ label my_room:
             pass
         "Study":
             pass
-        "Lock Door": # TrainDoc: Originally called "Lock the door"
+        "Lock Door": # Originally called "Lock the door"
             pass
         "Sleep":
             pass
-        "Shop": # TrainDoc: wtf are we going to do w/ the shop? it's so half baked lol
+        "Shop": # wtf are we going to do w/ the shop? it's so half baked lol
             pass
         "Special Options":
             pass
@@ -144,13 +144,9 @@ label danger_room:
         "You are in the Danger Room. What would you like to do?"
 
         "Chat":
-            #call Chat
             pass
         "Wait" if current_time != "Night":
             "You wait around a bit."
-            # call Wait
-            # call EventCalls
-            # call Girls_Location
             pass
         "Go somewhere else":
             $ locationMenu(danger_room)
@@ -164,13 +160,9 @@ label classroom:
         "You are in the Classroom. What would you like to do?"
 
         "Chat":
-            #call Chat
             pass
         "Wait" if current_time != "Night":
             "You wait around a bit."
-            # call Wait
-            # call EventCalls
-            # call Girls_Location
             pass
         "Go somewhere else":
             $ locationMenu(classroom)

@@ -34,8 +34,6 @@ label systemsMenu:
     jump systemsMenu
 
 # Test label for layeredimage
-# TODO: Make a proper sprite test environment
-# TODO: Remove this label
 label imageTest:
 
     show test
